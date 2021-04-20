@@ -1,0 +1,139 @@
+# Remarks:
+#   - Make release of basix/ffcx/dolfinx with version 2021.1.0
+#   - in basix: xtl/xtentor/xtensor-blas are not found by CMake
+
+
+{% set version = "2021.1.0" %}
+
+package:
+  name: fenics-pkgs
+  version: {{ version }}
+
+source:
+  - url: https://github.com/FEniCS/ufl/archive/refs/tags/{{ version }}.tar.gz
+    sha256: fe1832e2284f9c7fbd60421adc8bef05ba78a92c5ebc016839209fafaaead414
+    folder: ufl
+  - url: https://github.com/FEniCS/basix/archive/refs/heads/main.zip
+    sha256: 29f01323dd19517b22a2c39ab8bb94aa01bffae415e76f36cadf1b86c872d3c1
+    folder: basix
+  - url: https://github.com/FEniCS/ffcx/archive/refs/heads/main.zip
+    sha256: f50c202b8bb3252a57c3bc5626ecbf664abcf9edd210a54961d3707cb6908340
+    folder: ffcx
+  - url: https://github.com/FEniCS/dolfinx/archive/refs/heads/main.zip
+    sha256: b6c37e74dd4664957d4cbad416c7525c543645b8ddbf198c01e91ca51517c2f7
+    folder: dolfinx
+build:
+  number: 0
+  skip: true  # [win]
+
+outputs:
+  - name: fenics-ufl
+    build:
+      script: $PYTHON -m pip install --no-deps ./ufl
+    requirements:
+      host:
+        - python
+        - pip
+      run:
+        - python
+        - setuptools
+        - numpy
+    test:
+      source_files:
+        - ufl/test
+      requires:
+        - pytest
+      commands:
+        - pytest -v ufl/test
+
+  - name: fenics-basix
+    build:
+      script: ${RECIPE_DIR}/build-basix.sh
+    requirements:
+      build:
+        - {{ compiler("c") }}
+        - {{ compiler('cxx') }}
+        - make
+        - cmake
+      host:
+        - python
+        - pip
+        - numpy
+        - sympy
+      run:
+        - sympy
+        - numpy
+        - xtensor
+        - xtensor-blas
+        - pybind11
+        - liblapack
+        - libblas
+        - xtl
+    test:
+      source_files:
+        - basix/test
+      requires:
+        - pytest
+      commands:
+        - pytest -v basix/test
+
+  - name: fenics-ffcx
+    build:
+      script:
+        - $PYTHON -m pip install --no-deps ./ffcx
+    requirements:
+      host:
+        - python
+        - pip
+      run:
+        - {{ compiler("c") }} # [linux]
+        - python
+        - numpy
+        - cffi
+        - pygraphviz
+        - {{ pin_subpackage("fenics-basix", exact=True) }}
+        - {{ pin_subpackage("fenics-ufl", exact=True) }}
+    test:
+      source_files:
+        - ffcx/test
+      requires:
+        - pytest
+      commands:
+        - pytest -v ffcx/test
+
+  # - name: fenics-dolfinx
+  #   build:
+  #     script: ${RECIPE_DIR}/build-dolfinx.sh
+  #   requirements:
+  #     host:
+  #       - python
+  #       - pip
+  #     run:
+  #       - python
+  #       - numpy
+  #       - cffi
+  #       - pygraghviz
+  #       - {{ pin_subpackage("fenics-basix", exact=True) }}
+  #       - {{ pin_subpackage("fenics-ffcx", exact=True) }}
+  #   test:
+  #     source_files:
+  #       - dolfinx/python/test
+  #     requires:
+  #       - pytest
+  #     commands:
+  #       - pytest -v dolfinx/python/test
+
+
+about:
+  home: http://www.fenicsproject.org
+  license: LGPL 3.0
+  # license_file: dolfin/COPYING.LESSER
+  summary: 'FEniCS is a collection of free software for automated, efficient solution of differential equations'
+
+  description: |
+    FEniCS is a collection of free software for automated, efficient solution of differential equations
+    (<http://fenicsproject.org>). It provides C++ and Python interfaces, and creates effecient solvers via
+    expression of finite variational statements in a domain-specific language that are transformed and
+    just-in-time compiled into efficient implementations.
+  doc_url: http://fenics.readthedocs.io/
+  dev_url: https://github.com/FEniCS
