@@ -27,101 +27,134 @@ build:
   skip: true  # [win]
 
 outputs:
-  - name: fenics-ufl
-    build:
-      script: $PYTHON -m pip install --no-deps ./ufl
-    requirements:
-      host:
-        - python
-        - pip
-      run:
-        - python
-        - setuptools
-        - numpy
-    test:
-      source_files:
-        - ufl/test
-      requires:
-        - pytest
-      commands:
-        - pytest -v ufl/test
-
-  - name: fenics-basix
-    build:
-      script: ${RECIPE_DIR}/build-basix.sh
-    requirements:
-      build:
-        - {{ compiler("c") }}
-        - {{ compiler('cxx') }}
-        - make
-        - cmake
-      host:
-        - python
-        - pip
-        - numpy
-        - sympy
-      run:
-        - sympy
-        - numpy
-        - xtensor
-        - xtensor-blas
-        - pybind11
-        - liblapack
-        - libblas
-        - xtl
-    test:
-      source_files:
-        - basix/test
-      requires:
-        - pytest
-      commands:
-        - pytest -v basix/test
-
-  - name: fenics-ffcx
-    build:
-      script:
-        - $PYTHON -m pip install --no-deps ./ffcx
-    requirements:
-      host:
-        - python
-        - pip
-      run:
-        - {{ compiler("c") }} # [linux]
-        - python
-        - numpy
-        - cffi
-        - pygraphviz
-        - {{ pin_subpackage("fenics-basix", exact=True) }}
-        - {{ pin_subpackage("fenics-ufl", exact=True) }}
-    test:
-      source_files:
-        - ffcx/test
-      requires:
-        - pytest
-      commands:
-        - pytest -v ffcx/test
-
-  # - name: fenics-dolfinx
+  # - name: fenics-ufl
   #   build:
-  #     script: ${RECIPE_DIR}/build-dolfinx.sh
+  #     script: $PYTHON -m pip install --no-deps ./ufl
   #   requirements:
   #     host:
   #       - python
   #       - pip
   #     run:
   #       - python
+  #       - setuptools
   #       - numpy
-  #       - cffi
-  #       - pygraghviz
-  #       - {{ pin_subpackage("fenics-basix", exact=True) }}
-  #       - {{ pin_subpackage("fenics-ffcx", exact=True) }}
   #   test:
   #     source_files:
-  #       - dolfinx/python/test
+  #       - ufl/test
   #     requires:
   #       - pytest
   #     commands:
-  #       - pytest -v dolfinx/python/test
+  #       - pytest -v ufl/test
+  #
+  # - name: fenics-basix
+  #   build:
+  #     script: ${RECIPE_DIR}/build-basix.sh
+  #   requirements:
+  #     build:
+  #       - {{ compiler("c") }}
+  #       - {{ compiler('cxx') }}
+  #       - make
+  #       - cmake
+  #     host:
+  #       - python
+  #       - pip
+  #       - numpy
+  #       - sympy
+  #     run:
+  #       - sympy
+  #       - numpy
+  #       - xtensor
+  #       - xtensor-blas
+  #       - pybind11
+  #       - liblapack
+  #       - libblas
+  #       - xtl
+  #   test:
+  #     source_files:
+  #       - basix/test
+  #     requires:
+  #       - pytest
+  #     commands:
+  #       - pytest -v basix/test
+  #
+  # - name: fenics-ffcx
+  #   build:
+  #     script:
+  #       - $PYTHON -m pip install --no-deps ./ffcx
+  #       - mkdir -p $PREFIX/include
+  #       - cp ffcx/ffcx/codegeneration/*.h $PREFIX/include/
+  #   requirements:
+  #     host:
+  #       - python
+  #       - pip
+  #     run:
+  #       - {{ compiler("c") }} # [linux]
+  #       - python
+  #       - numpy
+  #       - cffi
+  #       - pygraphviz
+  #       - {{ pin_subpackage("fenics-basix", exact=True) }}
+  #       - {{ pin_subpackage("fenics-ufl", exact=True) }}
+  #   test:
+  #     source_files:
+  #       - ffcx/test
+  #     requires:
+  #       - pytest
+  #     commands:
+  #       - pytest -v ffcx/test
+
+  - name: fenics-libdolfinx
+    build:
+      script: ${RECIPE_DIR}/build-dolfinx.sh
+    requirements:
+      build:
+        - {{ compiler("c") }}
+        - {{ compiler('cxx') }}
+        - make
+        - cmake
+        - git
+      host:
+        - libblas
+        - libcblas
+        - boost-cpp
+        - cmake >=3.9
+        - eigen
+        - parmetis
+        - pkg-config
+        - ptscotch
+        - suitesparse
+        - zlib
+        - mpich
+        - petsc
+        - slepc
+        - liblapack
+        - fenics-ffcx =={{ version }}
+        # need to list libnetcdf and netcdf-fortran twice to get version
+        # pinning from conda_build_config and build pinning from {{ mpi_prefix }}
+        - hdf5
+        - hdf5=*=mpi*
+        # - hdf5 * {{ mpi_prefix }}_*
+      run:
+        - {{ compiler('cxx') }}  # [linux]
+        - cmake >=3.9
+        - eigen
+        - mpich
+        - parmetis
+        - petsc
+        - slepc
+        - pkg-config
+        - ptscotch
+        - suitesparse
+        - zlib
+        - fenics-ffcx =={{ version }}
+        - boost-cpp
+    test:
+      source_files:
+        - dolfinx/python/test
+      requires:
+        - pytest
+      commands:
+        - pytest -v dolfinx/python/test
 
 
 about:
