@@ -1,7 +1,5 @@
 # Remarks:
 #   - Make release of basix/ffcx/dolfinx with version 2021.1.0
-#   - in basix: xtl/xtentor/xtensor-blas are not found by CMake
-
 
 {% set version = "2021.1.0" %}
 
@@ -10,17 +8,17 @@ package:
   version: {{ version }}
 
 source:
-  - url: https://github.com/FEniCS/ufl/archive/refs/tags/{{ version }}.tar.gz
-    sha256: fe1832e2284f9c7fbd60421adc8bef05ba78a92c5ebc016839209fafaaead414
-    folder: ufl
-  - url: https://github.com/FEniCS/basix/archive/refs/heads/main.zip
-    sha256: 29f01323dd19517b22a2c39ab8bb94aa01bffae415e76f36cadf1b86c872d3c1
-    folder: basix
-  - url: https://github.com/FEniCS/ffcx/archive/refs/heads/main.zip
-    sha256: f50c202b8bb3252a57c3bc5626ecbf664abcf9edd210a54961d3707cb6908340
-    folder: ffcx
-  - url: https://github.com/FEniCS/dolfinx/archive/refs/heads/main.zip
-    sha256: b6c37e74dd4664957d4cbad416c7525c543645b8ddbf198c01e91ca51517c2f7
+  # - url: https://github.com/FEniCS/ufl/archive/refs/tags/{{ version }}.tar.gz
+  #   sha256: fe1832e2284f9c7fbd60421adc8bef05ba78a92c5ebc016839209fafaaead414
+  #   folder: ufl
+  # - url: https://github.com/FEniCS/basix/archive/refs/heads/main.zip
+  #   sha256: 7b2b38ff25f45314e2d7ebc57eb9e8aff1f439257847b276c5dcb2520fbcaf7e
+  #   folder: basix
+  # - url: https://github.com/FEniCS/ffcx/archive/refs/heads/main.zip
+  #   sha256: f50c202b8bb3252a57c3bc5626ecbf664abcf9edd210a54961d3707cb6908340
+  #   folder: ffcx
+  - url: https://github.com/FEniCS/dolfinx/archive/f4f0da23ac2fbb01a479a6a3dcf1fc0eea7d3c11.zip
+    sha256: 25b5ae43bc663974bb9a811610d57c2dbd0120a858c882e48fe3ad2bdcf57bf6
     folder: dolfinx
 build:
   number: 0
@@ -57,18 +55,24 @@ outputs:
   #       - cmake
   #     host:
   #       - python
-  #       - pip
-  #       - numpy
-  #       - sympy
-  #     run:
   #       - sympy
   #       - numpy
-  #       - xtensor
+  #       - xtensor=0.23.4
   #       - xtensor-blas
   #       - pybind11
   #       - liblapack
   #       - libblas
-  #       - xtl
+  #       - xtl=0.7.2
+  #     run:
+  #       - python
+  #       - sympy
+  #       - numpy
+  #       - xtensor=0.23.4
+  #       - xtensor-blas
+  #       - pybind11
+  #       - liblapack
+  #       - libblas
+  #       - xtl=0.7.2
   #   test:
   #     source_files:
   #       - basix/test
@@ -106,6 +110,7 @@ outputs:
   - name: fenics-libdolfinx
     build:
       script: ${RECIPE_DIR}/build-dolfinx.sh
+      {% set mpi_prefix = "mpi_" + mpi %}
     requirements:
       build:
         - {{ compiler("c") }}
@@ -114,47 +119,43 @@ outputs:
         - cmake
         - git
       host:
+        - python
         - libblas
         - libcblas
         - boost-cpp
-        - cmake >=3.9
         - eigen
         - parmetis
         - pkg-config
         - ptscotch
         - suitesparse
         - zlib
-        - mpich
+        - {{ mpi }}
         - petsc
         - slepc
         - liblapack
-        - fenics-ffcx =={{ version }}
+        - xtensor
+        - xtensor-blas
+        - fenics-ffcx ={{ version }}
         # need to list libnetcdf and netcdf-fortran twice to get version
         # pinning from conda_build_config and build pinning from {{ mpi_prefix }}
         - hdf5
-        - hdf5=*=mpi*
-        # - hdf5 * {{ mpi_prefix }}_*
+        - hdf5 * {{ mpi_prefix }}_*
       run:
-        - {{ compiler('cxx') }}  # [linux]
-        - cmake >=3.9
+        - python
+        - {{ compiler('cxx') }}
         - eigen
         - mpich
         - parmetis
         - petsc
         - slepc
-        - pkg-config
+        - pkgconfig
         - ptscotch
         - suitesparse
+        - xtensor
+        - xtensor-blas
         - zlib
-        - fenics-ffcx =={{ version }}
+        - fenics-ffcx ={{ version }}
         - boost-cpp
-    test:
-      source_files:
-        - dolfinx/python/test
-      requires:
-        - pytest
-      commands:
-        - pytest -v dolfinx/python/test
 
 
 about:

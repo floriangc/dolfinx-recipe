@@ -1,0 +1,18 @@
+mpi:
+  - 'mpich'
+pin_run_as_build:
+  boost-cpp:
+    max_pin: x.x.x
+  eigen:
+    max_pin: x.x
+  mpich:
+    max_pin: x.x
+  parmetis:
+    max_pin: x.x
+  # pybind11 generation breaks on patch releases
+  # at least between 2.2.3 and 2.2.4
+  pybind11:
+    max_pin: x.x.x
+
+CONDA_BUILD_SYSROOT:
+  - /opt/MacOSX10.13.sdk        # [osx]
