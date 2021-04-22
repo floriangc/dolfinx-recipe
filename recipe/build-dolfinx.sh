@@ -23,10 +23,8 @@ cmake .. \
   -DCMAKE_INSTALL_LIBDIR=$PREFIX/lib \
   -DCMAKE_INCLUDE_PATH=$INCLUDE_PATH \
   -DCMAKE_LIBRARY_PATH=$LIBRARY_PATH \
-  -DCMAKE_PREFIX_PATH=${PREFIX} \
-  # -DCMAKE_FIND_FRAMEWORK=LAST \
-  -DPython3_FIND_STRATEGY=LOCATION || (cat CMakeFiles/CMakeError.log && exit 1)
-make install
+  -DPython3_ROOT_DIR=$PREFIX || (cat CMakeFiles/CMakeError.log && exit 1)
+make -j$CPU_COUNT install
 
 #
 # cd ../../python
