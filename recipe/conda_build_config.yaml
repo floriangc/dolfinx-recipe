@@ -14,5 +14,5 @@ pin_run_as_build:
   pybind11:
     max_pin: x.x.x
 
-CONDA_BUILD_SYSROOT:
-  - /opt/MacOSX10.13.sdk        # [osx]
+#CONDA_BUILD_SYSROOT:
+#  - /Library/Developer/CommandLineTools/SDKs/MacOSX11.1.sdk       # [osx]
