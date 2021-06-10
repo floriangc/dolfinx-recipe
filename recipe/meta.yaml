@@ -13,15 +13,17 @@ source:
    - url: https://github.com/FEniCS/ffcx/archive/refs/heads/main.zip
      sha256: f50c202b8bb3252a57c3bc5626ecbf664abcf9edd210a54961d3707cb6908340
      folder: ffcx
-#  - url: https://github.com/FEniCS/dolfinx/archive/f960aa1fd0184e82f34d1cd5bf7a7f581089fd01.zip
-#    sha256: b67c1f4ffc5f27252de1caa38611e7ca58eb83a58f3345ff1b3cdfd84e15f1ee
-#    folder: dolfinx
+   - url: https://github.com/FEniCS/dolfinx/archive/f960aa1fd0184e82f34d1cd5bf7a7f581089fd01.zip
+     sha256: b67c1f4ffc5f27252de1caa38611e7ca58eb83a58f3345ff1b3cdfd84e15f1ee
+     folder: dolfinx
+
 build:
   number: 0
   skip: true  # [win]
 
 outputs:
    - name: fenics-ufl
+     version: {{ version }}
      build:
        script: $PYTHON -m pip install --no-deps ./ufl
      requirements:
@@ -41,6 +43,7 @@ outputs:
          - pytest -v ufl/test
 
    - name: fenics-basix
+     version: {{ version }}
      build:
        script: ${RECIPE_DIR}/build-basix.sh
      requirements:
@@ -83,6 +86,7 @@ outputs:
          - pytest -v  basix/test
 
    - name: fenics-ffcx
+     version: {{ version }}
      build:
        script:
          - $PYTHON -m pip install --no-deps ./ffcx
@@ -108,55 +112,56 @@ outputs:
        commands:
          - pytest -v ffcx/test
 
-#  - name: fenics-libdolfinx
-#    build:
-#      script: ${RECIPE_DIR}/build-dolfinx.sh
-#      {% set mpi_prefix = "mpi_" + mpi %}
-#    requirements:
-#      build:
-#        - {{ compiler("c") }}
-#        - {{ compiler('cxx') }}
-#        - make
-#        - cmake
-#        - git
-#      host:
-#        - python
-#        - libblas
-#        - libcblas
-#        - boost-cpp
-#        - eigen
-#        - parmetis
-#        - pkg-config
-#        - ptscotch
-#        - suitesparse
-#        - zlib
-#        - {{ mpi }}
-#        - petsc
-#        - slepc
-#        - liblapack
-#        - xtensor
-#        - xtensor-blas
-#        - fenics-ffcx ={{ version }}
-#        # need to list libnetcdf and netcdf-fortran twice to get version
-#        # pinning from conda_build_config and build pinning from {{ mpi_prefix }}
-#        - hdf5
-#        - hdf5 * {{ mpi_prefix }}_*
-#      run:
-#        - python
-#        - {{ compiler('cxx') }}
-#        - eigen
-#        - mpich
-#        - parmetis
-#        - petsc
-#        - slepc
-#        - pkgconfig
-#        - ptscotch
-#        - suitesparse
-#        - xtensor
-#        - xtensor-blas
-#        - zlib
-#        - fenics-ffcx ={{ version }}
-#        - boost-cpp
+#   - name: fenics-libdolfinx
+#     version: {{ version }}
+#     build:
+#       script: ${RECIPE_DIR}/build-dolfinx.sh
+#       {% set mpi_prefix = "mpi_" + mpi %}
+#     requirements:
+#       build:
+#         - {{ compiler("c") }}
+#         - {{ compiler('cxx') }}
+#         - make
+#         - cmake
+#         - git
+#       host:
+#         - python
+#         - libblas
+#         - libcblas
+#         - boost-cpp
+#         - eigen
+#         - parmetis
+#         - pkg-config
+#         - ptscotch
+#         - suitesparse
+#         - zlib
+#         - {{ mpi }}
+#         - petsc
+#         - slepc
+#         - liblapack
+#         - xtensor
+#         - xtensor-blas
+#         - fenics-ffcx ={{ version }}
+#         # need to list libnetcdf and netcdf-fortran twice to get version
+#         # pinning from conda_build_config and build pinning from {{ mpi_prefix }}
+#         - hdf5
+#         - hdf5 * {{ mpi_prefix }}_*
+#       run:
+#         - python
+#         - {{ compiler('cxx') }}
+#         - eigen
+#         - mpich
+#         - parmetis
+#         - petsc
+#         - slepc
+#         - pkgconfig
+#         - ptscotch
+#         - suitesparse
+#         - xtensor
+#         - xtensor-blas
+#         - zlib
+#         - fenics-ffcx ={{ version }}
+#         - boost-cpp
 
 
 about:
