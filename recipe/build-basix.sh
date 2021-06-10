@@ -13,5 +13,5 @@ cmake -DCMAKE_BUILD_TYPE=Release \
 cmake --build build-dir
 cmake --install build-dir
 
-cd python
-python -m pip install . --no-deps
+#cd python
+#python -m pip install . --no-deps

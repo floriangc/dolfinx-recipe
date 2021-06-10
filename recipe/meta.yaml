@@ -28,10 +28,10 @@ outputs:
        script: $PYTHON -m pip install --no-deps ./ufl
      requirements:
        host:
-         - python
+         - python=3.8
          - pip
        run:
-         - python
+         - python=3.8
          - setuptools
          - numpy
      test:
@@ -42,7 +42,7 @@ outputs:
        commands:
          - pytest -v ufl/test
 
-   - name: fenics-basix
+   - name: fenics-libbasix
      version: {{ version }}
      build:
        script: ${RECIPE_DIR}/build-basix.sh
@@ -53,29 +53,45 @@ outputs:
          - make
          - cmake
        host:
-         - python
-         - sympy
-         - scipy
-         - numpy
          - xtensor=0.23.4
          - xtensor-blas
-         - pybind11
          - liblapack
          - libblas
          - xtl=0.7.2
-         - numba
+         - libopenblas
        run:
-         - python
-         - sympy
-         - scipy
-         - numpy
          - xtensor=0.23.4
          - xtensor-blas
-         - pybind11
          - liblapack
          - libblas
          - xtl=0.7.2
+
+   - name: fenics-basix
+     version: {{ version }}
+     build:
+       script: $PYTHON -m pip install --no-deps ./basix/python
+     requirements:
+       build:
+         - {{ compiler("c") }}
+         - {{ compiler('cxx') }}
+         - make
+         - cmake
+         - pybind11
+         - python=3.8
+       host:
+         - python=3.8
+         - sympy
+         - scipy
+         - numpy
          - numba
+         - {{ pin_subpackage("fenics-libbasix", exact=True) }}
+       run:
+         - python=3.8
+         - sympy
+         - scipy
+         - numpy
+         - numba
+         - {{ pin_subpackage("fenics-libbasix", exact=True) }}
      test:
        source_files:
          - basix/test
@@ -84,6 +100,7 @@ outputs:
          - pytest-xdist
        commands:
          - pytest -v  basix/test
+
 
    - name: fenics-ffcx
      version: {{ version }}
@@ -94,11 +111,11 @@ outputs:
          - cp ffcx/ffcx/codegeneration/*.h $PREFIX/include/
      requirements:
        host:
-         - python
+         - python=3.8
          - pip
        run:
-         - {{ compiler("c") }} # [linux]
-         - python
+         - {{ compiler("c") }}
+         - python=3.8
          - numpy
          - cffi
          - pygraphviz
@@ -112,56 +129,54 @@ outputs:
        commands:
          - pytest -v ffcx/test
 
-#   - name: fenics-libdolfinx
-#     version: {{ version }}
-#     build:
-#       script: ${RECIPE_DIR}/build-dolfinx.sh
-#       {% set mpi_prefix = "mpi_" + mpi %}
-#     requirements:
-#       build:
-#         - {{ compiler("c") }}
-#         - {{ compiler('cxx') }}
-#         - make
-#         - cmake
-#         - git
-#       host:
-#         - python
-#         - libblas
-#         - libcblas
-#         - boost-cpp
-#         - eigen
-#         - parmetis
-#         - pkg-config
-#         - ptscotch
-#         - suitesparse
-#         - zlib
-#         - {{ mpi }}
-#         - petsc
-#         - slepc
-#         - liblapack
-#         - xtensor
-#         - xtensor-blas
-#         - fenics-ffcx ={{ version }}
-#         # need to list libnetcdf and netcdf-fortran twice to get version
-#         # pinning from conda_build_config and build pinning from {{ mpi_prefix }}
-#         - hdf5
-#         - hdf5 * {{ mpi_prefix }}_*
-#       run:
-#         - python
-#         - {{ compiler('cxx') }}
-#         - eigen
-#         - mpich
-#         - parmetis
-#         - petsc
-#         - slepc
-#         - pkgconfig
-#         - ptscotch
-#         - suitesparse
-#         - xtensor
-#         - xtensor-blas
-#         - zlib
-#         - fenics-ffcx ={{ version }}
-#         - boost-cpp
+   - name: fenics-libdolfinx
+     version: {{ version }}
+     build:
+       script: ${RECIPE_DIR}/build-dolfinx.sh
+       {% set mpi_prefix = "mpi_" + mpi %}
+     requirements:
+       build:
+         - {{ compiler("c") }}
+         - {{ compiler('cxx') }}
+         - make
+         - cmake
+         - git
+       host:
+         - libblas
+         - libcblas
+         - boost-cpp
+         - eigen
+         - parmetis
+         - pkg-config
+         - ptscotch
+         - suitesparse
+         - zlib
+         - {{ mpi }}
+         - petsc
+         - slepc
+         - liblapack
+         - xtensor=0.23.4
+         - xtensor-blas
+         - {{ pin_subpackage("fenics-ffcx", exact=True) }}
+         # need to list libnetcdf and netcdf-fortran twice to get version
+         # pinning from conda_build_config and build pinning from {{ mpi_prefix }}
+         - hdf5
+         - hdf5 * {{ mpi_prefix }}_*
+       run:
+         - {{ compiler('cxx') }}
+         - eigen
+         - mpich
+         - parmetis
+         - petsc
+         - slepc
+         - pkgconfig
+         - ptscotch
+         - suitesparse
+         - xtensor
+         - xtensor-blas
+         - zlib
+         - {{ pin_subpackage("fenics-ffcx", exact=True) }}
+         - boost-cpp
 
 
 about:
