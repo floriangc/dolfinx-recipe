@@ -1,4 +1,5 @@
 #!/bin/bash
+set -eux
 
 export LIBRARY_PATH=$PREFIX/lib
 export INCLUDE_PATH=$PREFIX/include
@@ -12,6 +13,3 @@ cmake -DCMAKE_BUILD_TYPE=Release \
       -B build-dir -S .
 cmake --build build-dir
 cmake --install build-dir
-
-#cd python
-#python -m pip install . --no-deps

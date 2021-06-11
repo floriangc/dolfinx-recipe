@@ -58,7 +58,6 @@ outputs:
          - liblapack
          - libblas
          - xtl=0.7.2
-         - libopenblas
        run:
          - xtensor=0.23.4
          - xtensor-blas
@@ -76,7 +75,6 @@ outputs:
          - {{ compiler('cxx') }}
          - make
          - cmake
-         - pybind11
          - python=3.8
        host:
          - python=3.8
@@ -84,14 +82,18 @@ outputs:
          - scipy
          - numpy
          - numba
-         - {{ pin_subpackage("fenics-libbasix", exact=True) }}
+         - pybind11
+#         - {{ pin_subpackage("fenics-libbasix", exact=True) }}
+         - fenics-libbasix
        run:
          - python=3.8
          - sympy
          - scipy
          - numpy
          - numba
-         - {{ pin_subpackage("fenics-libbasix", exact=True) }}
+         - pybind11
+#         - {{ pin_subpackage("fenics-libbasix", exact=True) }}
+         - fenics-libbasix
      test:
        source_files:
          - basix/test
@@ -114,7 +116,7 @@ outputs:
          - python=3.8
          - pip
        run:
-         - {{ compiler("c") }}
+         - {{ compiler("c") }} # [linux]
          - python=3.8
          - numpy
          - cffi
@@ -126,6 +128,8 @@ outputs:
          - ffcx/test
        requires:
          - pytest
+         - pytest-xdist
+         - sympy
        commands:
          - pytest -v ffcx/test
 
