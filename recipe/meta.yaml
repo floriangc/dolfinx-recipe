@@ -83,7 +83,6 @@ outputs:
          - numpy
          - numba
          - pybind11
-#         - {{ pin_subpackage("fenics-libbasix", exact=True) }}
          - fenics-libbasix
        run:
          - python=3.8
@@ -92,7 +91,6 @@ outputs:
          - numpy
          - numba
          - pybind11
-#         - {{ pin_subpackage("fenics-libbasix", exact=True) }}
          - fenics-libbasix
      test:
        source_files:
@@ -136,7 +134,7 @@ outputs:
    - name: fenics-libdolfinx
      version: {{ version }}
      build:
-       script: ${RECIPE_DIR}/build-dolfinx.sh
+       script: ${RECIPE_DIR}/build-libdolfinx.sh
        {% set mpi_prefix = "mpi_" + mpi %}
      requirements:
        build:
@@ -182,6 +180,42 @@ outputs:
          - {{ pin_subpackage("fenics-ffcx", exact=True) }}
          - boost-cpp
 
+
+   - name: fenics-dolfinx
+     version: {{ version }}
+     build:
+       script: ${RECIPE_DIR}/build-dolfinx.sh
+     requirements:
+       build:
+         - {{ compiler("c") }}
+         - {{ compiler('cxx') }}
+         - make
+         - cmake
+         - python=3.8
+         - pybind11
+       host:
+         - python=3.8
+         - fenics-basix
+         - fenics-ufl
+         - fenics-ffcx
+         - fenics-libdolfinx
+       run:
+         - python=3.8
+         - fenics-basix
+         - fenics-ufl
+         - fenics-ffcx
+         - fenics-libdolfinx
+         - numpy
+         - mpi4py
+         - petsc4py
+     test:
+       source_files:
+         - dolfinx/test
+       requires:
+         - pytest
+         - pytest-xdist
+       commands:
+         - pytest -v dolfinx/test
 
 about:
   home: http://www.fenicsproject.org

@@ -1,29 +1,18 @@
 #!/bin/bash
 set -eux
 
-export LIBRARY_PATH=$PREFIX/lib
-export INCLUDE_PATH=$PREFIX/include
+unset CMAKE_PREFIX_PATH
 
-export PETSc_DIR=$PREFIX
-export SLEPC_DIR=$PREFIX
-export BLAS_DIR=$LIBRARY_PATH
+# scrub problematic -fdebug-prefix-map from C[XX]FLAGS
+# these are loaded in the clang[++] activate scripts
+export CFLAGS=$(echo $CFLAGS | sed -E 's@\-fdebug\-prefix\-map[^ ]*@@g')
+export CXXFLAGS=$(echo $CXXFLAGS | sed -E 's@\-fdebug\-prefix\-map[^ ]*@@g')
+export PETSc_DIR=$PREFIX/lib
 
-cd dolfinx/cpp
-mkdir build
-cd build
+cp dolfinx/cpp/cmake/modules/FindPETSc.cmake dolfinx/python/cmake/FindPETSc.cmake
 
-cmake .. \
-  -DDOLFINX_ENABLE_SLEPC=on \
-  -DDOLFINX_SKIP_BUILD_TESTS=FALSE \
-  -DCMAKE_INSTALL_PREFIX=$PREFIX \
-  -DCMAKE_INSTALL_LIBDIR=$PREFIX/lib \
-  -DCMAKE_INCLUDE_PATH=$INCLUDE_PATH \
-  -DCMAKE_LIBRARY_PATH=$LIBRARY_PATH \
-  -DPython3_ROOT_DIR=$PREFIX \
-  -DPython3_FIND_STRATEGY=LOCATION \
-  -DSCOTCH_ROOT=$PREFIX \
-  -DHDF5_ROOT=$PREFIX || (cat CMakeFiles/CMakeError.log && exit 1)
-
-make -j${CPU_COUNT} install
-
-#source $PREFIX/lib/dolfinx/dolfinx.conf
+# install Python bindings
+cd dolfinx/python
+$PYTHON -m pip install -v --no-deps .
+#cd test
+#$PYTHON -c 'from dolfin import *; info(parameters["form_compiler"], True)'
